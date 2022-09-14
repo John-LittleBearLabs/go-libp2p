@@ -30,10 +30,11 @@ require (
 	github.com/libp2p/go-netroute v0.2.0
 	github.com/libp2p/go-openssl v0.1.0
 	github.com/libp2p/go-reuseport v0.2.0
-	github.com/libp2p/go-yamux/v3 v3.1.2
+	github.com/libp2p/go-yamux/v4 v4.0.0
 	github.com/libp2p/zeroconf/v2 v2.2.0
 	github.com/lucas-clemente/quic-go v0.29.0
 	github.com/marten-seemann/tcp v0.0.0-20210406111302-dfbc87cc63fd
+	github.com/marten-seemann/webtransport-go v0.1.0
 	github.com/mikioh/tcpinfo v0.0.0-20190314235526-30a79bb1804b
 	github.com/minio/sha256-simd v1.0.0
 	github.com/mr-tron/base58 v1.2.0
@@ -89,6 +90,7 @@ require (
 	github.com/koron/go-ssdp v0.0.3 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/libp2p/go-cidranger v1.1.0 // indirect
+	github.com/marten-seemann/qpack v0.2.1 // indirect
 	github.com/marten-seemann/qtls-go1-18 v0.1.2 // indirect
 	github.com/marten-seemann/qtls-go1-19 v0.1.0 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
@@ -124,7 +126,8 @@ require (
 	go.uber.org/zap v1.23.0 // indirect
 	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220909164309-bea034e7d591 // indirect
+	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
+	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.12 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
