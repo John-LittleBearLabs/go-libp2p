@@ -12,14 +12,15 @@ import (
 	"net"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/google/uuid"
-	ic "github.com/John-LittleBearLabs/go-libp2p/core/crypto"
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	"github.com/John-LittleBearLabs/go-libp2p/core/sec"
-	tpt "github.com/John-LittleBearLabs/go-libp2p/core/transport"
-	"github.com/John-LittleBearLabs/go-libp2p/p2p/security/noise"
+	ic "github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/sec"
+	tpt "github.com/libp2p/go-libp2p/core/transport"
+	"github.com/libp2p/go-libp2p/p2p/security/noise"
 
 	logging "github.com/ipfs/go-log/v2"
 	ma "github.com/multiformats/go-multiaddr"
@@ -50,22 +51,24 @@ type Option func(*WebRTCTransport) error
 func New(privKey ic.PrivKey, rcmgr network.ResourceManager, opts ...Option) (*WebRTCTransport, error) {
 	localPeerId, err := peer.IDFromPrivateKey(privKey)
 	if err != nil {
-		return nil, fmt.Errorf("could not get local peer ID: %v", err)
+		return nil, errInternal("could not get local peer ID", err)
 	}
+	// We use elliptic P-256 since it is widely supported by browsers.
+	// See: https://github.com/libp2p/specs/pull/412#discussion_r968294244
 	pk, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		return nil, fmt.Errorf("could not generate rsa key for cert: %v", err)
+		return nil, errInternal("could not generate key for cert", err)
 	}
 	cert, err := webrtc.GenerateCertificate(pk)
 	if err != nil {
-		return nil, fmt.Errorf("could not generate certificate: %v", err)
+		return nil, errInternal("could not generate certificate", err)
 	}
 	config := webrtc.Configuration{
 		Certificates: []webrtc.Certificate{*cert},
 	}
 	noiseTpt, err := noise.New(privKey)
 	if err != nil {
-		return nil, fmt.Errorf("unable to create the noise transport")
+		return nil, errInternal("unable to create noise transport", err)
 	}
 	return &WebRTCTransport{rcmgr: rcmgr, webrtcConfig: config, privKey: privKey, noiseTpt: noiseTpt, localPeerId: localPeerId}, nil
 }
@@ -86,20 +89,20 @@ func (t *WebRTCTransport) Listen(addr ma.Multiaddr) (tpt.Listener, error) {
 	addr, wrtcComponent := ma.SplitLast(addr)
 	isWebrtc := wrtcComponent.Equal(ma.StringCast("/webrtc"))
 	if !isWebrtc {
-		return nil, fmt.Errorf("must listen on webrtc multiaddr")
+		return nil, errMultiaddr("must listen on webrtc multiaddr", nil)
 	}
 	nw, host, err := manet.DialArgs(addr)
 	if err != nil {
-		return nil, fmt.Errorf("listener could not fetch dialargs: %v", err)
+		return nil, errMultiaddr("listener could not fetch dialargs", err)
 	}
 	udpAddr, err := net.ResolveUDPAddr(nw, host)
 	if err != nil {
-		return nil, fmt.Errorf("listener could not resolve udp address: %v", err)
+		return nil, errMultiaddr("listener could not resolve udp address", err)
 	}
 
 	socket, err := net.ListenUDP(nw, udpAddr)
 	if err != nil {
-		return nil, fmt.Errorf("could not listen on udp: %v", err)
+		return nil, errInternal("could not listen on udp", err)
 	}
 
 	// construct multiaddr
@@ -144,7 +147,10 @@ func (t *WebRTCTransport) Dial(
 	remoteMultiaddr ma.Multiaddr,
 	p peer.ID,
 ) (tpt.CapableConn, error) {
-	var pc *webrtc.PeerConnection
+	var (
+		pc             *webrtc.PeerConnection
+		wrappedChannel *dataChannel
+	)
 	scope, err := t.rcmgr.OpenConnection(network.DirOutbound, false, remoteMultiaddr)
 
 	cleanup := func() {
@@ -170,19 +176,19 @@ func (t *WebRTCTransport) Dial(
 	remoteMultihash, err := decodeRemoteFingerprint(remoteMultiaddr)
 	if err != nil {
 		defer cleanup()
-		return nil, fmt.Errorf("could not decode remote multiaddr: %v", err)
+		return nil, errMultiaddr("could not decode fingerprint", err)
 	}
 
 	rnw, rhost, err := manet.DialArgs(remoteMultiaddr)
 	if err != nil {
 		defer cleanup()
-		return nil, fmt.Errorf("could not generate dialargs: %v", err)
+		return nil, errMultiaddr("could not generate dial args", err)
 	}
 
 	raddr, err := net.ResolveUDPAddr(rnw, rhost)
 	if err != nil {
 		defer cleanup()
-		return nil, fmt.Errorf("could not resolve udp address: %v", err)
+		return nil, errMultiaddr("could not resolve udp address", err)
 	}
 
 	// Instead of encoding the local fingerprint we
@@ -192,60 +198,70 @@ func (t *WebRTCTransport) Dial(
 	// the password using the STUN message.
 	ufrag := uuid.New().String()
 
-	se := webrtc.SettingEngine{}
-	// se.DetachDataChannels()
-	se.SetICECredentials(ufrag, ufrag)
-	se.SetLite(false)
-	api := webrtc.NewAPI(webrtc.WithSettingEngine(se))
+	settingEngine := webrtc.SettingEngine{}
+	settingEngine.SetICECredentials(ufrag, ufrag)
+	settingEngine.SetLite(false)
+	api := webrtc.NewAPI(webrtc.WithSettingEngine(settingEngine))
 
 	pc, err = api.NewPeerConnection(t.webrtcConfig)
 	if err != nil {
 		defer cleanup()
-		return nil, fmt.Errorf("could not instantiate peerconnection: %v", err)
+		return nil, errInternal("could not instantiate peerconnection", err)
 	}
 
 	// We need to set negotiated = true for this channel on both
 	// the client and server to avoid DCEP errors.
-	dc, err := pc.CreateDataChannel("data", &webrtc.DataChannelInit{
+	handshakeChannel, err := pc.CreateDataChannel("data", &webrtc.DataChannelInit{
 		Negotiated: func(v bool) *bool { return &v }(true),
 		ID:         func(v uint16) *uint16 { return &v }(1),
 	})
 
 	if err != nil {
 		defer cleanup()
-		return nil, fmt.Errorf("could not create datachannel: %v", err)
+		return nil, errDatachannel("could not create", err)
 	}
 
-	opened := make(chan *dataChannel, 1)
-	errChan := make(chan error, 1)
-	dc.OnOpen(func() {
-		// detached, err := dc.Detach()
-		// if err != nil {
-		// 	err = fmt.Errorf("could not detach datachannel: %v", err)
-		// 	errChan <- err
-		// 	return
-		// }
-		cp, err := dc.Transport().Transport().ICETransport().GetSelectedCandidatePair()
+	signalChan := make(chan struct{ error })
+	var connectedOnce sync.Once
+	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
+		switch state {
+		case webrtc.PeerConnectionStateConnected:
+			connectedOnce.Do(func() {
+				signalChan <- struct{ error }{nil}
+			})
+		case webrtc.PeerConnectionStateFailed:
+			connectedOnce.Do(func() {
+				err := errConnectionFailed("peerconnection move to failed state", nil)
+				signalChan <- struct{ error }{err}
+			})
+		}
+	})
+
+	wrappedChannel = newDataChannel(handshakeChannel, pc, nil, raddr)
+	handshakeChannel.OnOpen(func() {
+		cp, err := handshakeChannel.Transport().Transport().ICETransport().GetSelectedCandidatePair()
 		if cp == nil || err != nil {
-			err = fmt.Errorf("could not fetch selected candidate pair: %v", err)
-			errChan <- err
+			err = errDatachannel("could not fetch selected candidate pair", err)
+			signalChan <- struct{ error }{err}
 			return
 		}
 
 		laddr := &net.UDPAddr{IP: net.ParseIP(cp.Local.Address), Port: int(cp.Local.Port)}
-		opened <- newDataChannel(dc, pc, laddr, raddr)
+		wrappedChannel.laddr = laddr
+		signalChan <- struct{ error }{nil}
 	})
 
+	// do offer-answer exchange
 	offer, err := pc.CreateOffer(nil)
 	if err != nil {
 		defer cleanup()
-		return nil, fmt.Errorf("could not create offer: %v", err)
+		return nil, errConnectionFailed("could not create offer", err)
 	}
 
 	err = pc.SetLocalDescription(offer)
 	if err != nil {
 		defer cleanup()
-		return nil, fmt.Errorf("could not set local description: %v", err)
+		return nil, errConnectionFailed("could not set local description", err)
 	}
 
 	answerSdpString := renderServerSdp(sdpArgs{
@@ -258,28 +274,45 @@ func (t *WebRTCTransport) Dial(
 	err = pc.SetRemoteDescription(answer)
 	if err != nil {
 		defer cleanup()
-		return nil, fmt.Errorf("could not set remote description: %v", err)
+		return nil, errConnectionFailed("could not set remote description", err)
 	}
 
-	var dataChannel *dataChannel = nil
+	// await peerconnection opening
 	select {
-	case dataChannel = <-opened:
-	case err = <-errChan:
-		defer cleanup()
-		return nil, err
+	case signal := <-signalChan:
+		if signal.error != nil {
+			defer cleanup()
+			return nil, signal.error
+		}
 	case <-ctx.Done():
 		scope.Done()
 		defer cleanup()
-		return nil, ErrDataChannelTimeout
+		return nil, errDataChannelTimeout
 	}
 
-	localAddr, err := manet.FromNetAddr(dataChannel.LocalAddr())
+	// await datachannel opening
+	select {
+	case signal := <-signalChan:
+		if signal.error != nil {
+			defer cleanup()
+			return nil, signal.error
+		}
+	case <-ctx.Done():
+		scope.Done()
+		defer cleanup()
+		return nil, errDataChannelTimeout
+	}
+
+	// the local address of the selected candidate pair should be the
+	// local address for the connection, since different datachannels
+	// are multiplexed over the same SCTP connection
+	localAddr, err := manet.FromNetAddr(wrappedChannel.LocalAddr())
 	if err != nil {
 		defer cleanup()
 		return nil, err
 	}
 
-	conn, err := newConnection(
+	conn := newConnection(
 		pc,
 		t,
 		scope,
@@ -290,11 +323,7 @@ func (t *WebRTCTransport) Dial(
 		nil,
 		remoteMultiaddr,
 	)
-	if err != nil {
-		defer cleanup()
-		return nil, err
-	}
-	secureConn, err := t.noiseHandshake(ctx, pc, dataChannel, p, false)
+	secureConn, err := t.noiseHandshake(ctx, pc, wrappedChannel, p, false)
 	if err != nil {
 		defer cleanup()
 		return nil, err
@@ -374,20 +403,22 @@ func (t *WebRTCTransport) generateNoisePrologue(pc *webrtc.PeerConnection) ([]by
 func (t *WebRTCTransport) noiseHandshake(ctx context.Context, pc *webrtc.PeerConnection, datachannel *dataChannel, peer peer.ID, inbound bool) (secureConn sec.SecureConn, err error) {
 	prologue, err := t.generateNoisePrologue(pc)
 	if err != nil {
-		return nil, fmt.Errorf("could not generate noise prologue: %v", err)
+		return nil, errNoise("could not generate prologue", err)
 	}
 	sessionTransport, err := t.noiseTpt.WithSessionOptions(noise.Prologue(prologue))
 	if err != nil {
-		return nil, fmt.Errorf("could not instantiate noise session transport: %v", err)
+		return nil, errNoise("could not instantiate transport", err)
 	}
 	if inbound {
 		secureConn, err = sessionTransport.SecureInbound(ctx, datachannel, peer)
 		if err != nil {
+			err = errNoise("failed to secure inbound", err)
 			return
 		}
 	} else {
 		secureConn, err = sessionTransport.SecureOutbound(ctx, datachannel, peer)
 		if err != nil {
+			err = errNoise("failed to secure outbound", err)
 			return
 		}
 	}

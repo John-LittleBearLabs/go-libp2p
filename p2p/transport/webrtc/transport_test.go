@@ -6,11 +6,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/crypto"
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	tpt "github.com/John-LittleBearLabs/go-libp2p/core/transport"
+	"github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	tpt "github.com/libp2p/go-libp2p/core/transport"
 	"github.com/multiformats/go-multiaddr"
+	"github.com/multiformats/go-multibase"
+	"github.com/multiformats/go-multihash"
 	"github.com/stretchr/testify/require"
 )
 
@@ -69,15 +71,13 @@ func TestTransportWebRTC_ListenFailsOnNonWebRTCMultiaddr(t *testing.T) {
 
 func TestTransportWebRTC_CanListenSingle(t *testing.T) {
 	tr, listeningPeer := getTransport(t)
+	tr1, connectingPeer := getTransport(t)
 	listenMultiaddr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/%s/udp/0/webrtc", listenerIp))
 	require.NoError(t, err)
 	listener, err := tr.Listen(listenMultiaddr)
 	require.NoError(t, err)
 
-	tr1, connectingPeer := getTransport(t)
-
 	go func() {
-		t.Logf("dialing: %s", listener.Multiaddr())
 		_, err := tr1.Dial(context.Background(), listener.Multiaddr(), listeningPeer)
 		require.NoError(t, err)
 	}()
@@ -89,14 +89,15 @@ func TestTransportWebRTC_CanListenSingle(t *testing.T) {
 	require.Equal(t, connectingPeer, conn.RemotePeer())
 }
 
-func TestTransportWebRTCCanListenMultiple(t *testing.T) {
+func TestTransportWebRTC_CanListenMultiple(t *testing.T) {
 	tr, listeningPeer := getTransport(t)
 	listenMultiaddr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/%s/udp/0/webrtc", listenerIp))
 	require.NoError(t, err)
 	listener, err := tr.Listen(listenMultiaddr)
 	require.NoError(t, err)
+	count := 5
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < count; i++ {
 		go func() {
 			ctr, _ := getTransport(t)
 			conn, err := ctr.Dial(context.Background(), listener.Multiaddr(), listeningPeer)
@@ -105,70 +106,138 @@ func TestTransportWebRTCCanListenMultiple(t *testing.T) {
 		}()
 	}
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < count; i++ {
 		_, err := listener.Accept()
 		require.NoError(t, err)
+		t.Logf("listener accepted connection: %d", i)
 	}
 }
 
-func TestTransportWebRTCListenerCanCreateStreams(t *testing.T) {
+func TestTransportWebRTC_ListenerCanCreateStreams(t *testing.T) {
 	tr, listeningPeer := getTransport(t)
+	tr1, connectingPeer := getTransport(t)
 	listenMultiaddr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/%s/udp/0/webrtc", listenerIp))
 	require.NoError(t, err)
 	listener, err := tr.Listen(listenMultiaddr)
 	require.NoError(t, err)
 
-	tr1, connectingPeer := getTransport(t)
-
 	go func() {
-		conn, err := tr1.Dial(context.Background(), listener.Multiaddr(), listeningPeer)
+		conn, err := listener.Accept()
 		require.NoError(t, err)
-		stream, err := conn.AcceptStream()
-		require.NoError(t, err)
-		buf := make([]byte, 100)
-		n, err := stream.Read(buf)
-		require.NoError(t, err)
-		require.Equal(t, "test", string(buf[:n]))
-	}()
+		t.Logf("listener accepted connection")
 
-	conn, err := listener.Accept()
-	require.NoError(t, err)
+		require.Equal(t, connectingPeer, conn.RemotePeer())
 
-	require.Equal(t, connectingPeer, conn.RemotePeer())
-
-	stream, err := conn.OpenStream(context.Background())
-	require.NoError(t, err)
-	_, err = stream.Write([]byte("test"))
-	require.NoError(t, err)
-}
-
-func TestTransportWebRTCDialerCanCreateStreams(t *testing.T) {
-	tr, listeningPeer := getTransport(t)
-	listenMultiaddr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/%s/udp/0/webrtc", listenerIp))
-	require.NoError(t, err)
-	listener, err := tr.Listen(listenMultiaddr)
-	require.NoError(t, err)
-
-	tr1, connectingPeer := getTransport(t)
-
-	go func() {
-		conn, err := tr1.Dial(context.Background(), listener.Multiaddr(), listeningPeer)
-		require.NoError(t, err)
-		time.Sleep(100 * time.Millisecond)
 		stream, err := conn.OpenStream(context.Background())
 		require.NoError(t, err)
+		t.Logf("listener opened stream")
 		_, err = stream.Write([]byte("test"))
 		require.NoError(t, err)
 	}()
 
-	lconn, err := listener.Accept()
-	require.NoError(t, err)
-	require.Equal(t, connectingPeer, lconn.RemotePeer())
+	streamChan := make(chan network.MuxedStream)
+	go func() {
+		conn, err := tr1.Dial(context.Background(), listener.Multiaddr(), listeningPeer)
+		require.NoError(t, err)
+		t.Logf("connection opened by dialer")
+		stream, err := conn.AcceptStream()
+		require.NoError(t, err)
+		t.Logf("dialer accepted stream")
+		streamChan <- stream
+	}()
 
-	stream, err := lconn.AcceptStream()
-	require.NoError(t, err)
+	var stream network.MuxedStream
+	select {
+	case stream = <-streamChan:
+	case <-time.After(3 * time.Second):
+		t.Fatal("stream opening timed out")
+	}
 	buf := make([]byte, 100)
+	stream.SetReadDeadline(time.Now().Add(3 * time.Second))
 	n, err := stream.Read(buf)
 	require.NoError(t, err)
 	require.Equal(t, "test", string(buf[:n]))
+
+}
+
+func TestTransportWebRTC_DialerCanCreateStreams(t *testing.T) {
+	tr, listeningPeer := getTransport(t)
+	listenMultiaddr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/%s/udp/0/webrtc", listenerIp))
+	require.NoError(t, err)
+	listener, err := tr.Listen(listenMultiaddr)
+	require.NoError(t, err)
+
+	tr1, connectingPeer := getTransport(t)
+	done := make(chan struct{})
+
+	go func() {
+		lconn, err := listener.Accept()
+		require.NoError(t, err)
+		t.Logf("listener accepted connection")
+		require.Equal(t, connectingPeer, lconn.RemotePeer())
+
+		stream, err := lconn.AcceptStream()
+		require.NoError(t, err)
+		t.Logf("listener accepted stream")
+		buf := make([]byte, 100)
+		n, err := stream.Read(buf)
+		require.NoError(t, err)
+		require.Equal(t, "test", string(buf[:n]))
+
+		done <- struct{}{}
+	}()
+
+	go func() {
+		conn, err := tr1.Dial(context.Background(), listener.Multiaddr(), listeningPeer)
+		require.NoError(t, err)
+		t.Logf("dialer opened connection")
+		stream, err := conn.OpenStream(context.Background())
+		require.NoError(t, err)
+		t.Logf("dialer opened stream")
+		_, err = stream.Write([]byte("test"))
+		require.NoError(t, err)
+
+	}()
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatal("timed out")
+	}
+
+}
+
+func TestTransportWebRTC_PeerConnectionDTLSFailed(t *testing.T) {
+	tr, listeningPeer := getTransport(t)
+	listenMultiaddr, err := multiaddr.NewMultiaddr(fmt.Sprintf("/ip4/%s/udp/0/webrtc", listenerIp))
+	require.NoError(t, err)
+	listener, err := tr.Listen(listenMultiaddr)
+	require.NoError(t, err)
+
+	tr1, _ := getTransport(t)
+
+	go func() {
+		listener.Accept()
+	}()
+
+	badMultiaddr, _ := multiaddr.SplitFunc(listener.Multiaddr(), func(component multiaddr.Component) bool {
+		return component.Protocol().Code == multiaddr.P_CERTHASH
+	})
+
+	encodedCerthash, err := multihash.Encode(defaultMultihash.Digest, defaultMultihash.Code)
+	require.NoError(t, err)
+	badEncodedCerthash, err := multibase.Encode(multibase.Base58BTC, encodedCerthash)
+	require.NoError(t, err)
+	badCerthash, err := multiaddr.NewMultiaddr(fmt.Sprintf("/certhash/%s", badEncodedCerthash))
+	require.NoError(t, err)
+	badMultiaddr = badMultiaddr.Encapsulate(badCerthash)
+
+	conn, err := tr1.Dial(context.Background(), badMultiaddr, listeningPeer)
+	require.Nil(t, conn)
+	require.Error(t, err)
+
+	webrtcErr, ok := err.(*webRTCTransportError)
+	require.True(t, ok, "could not cast to webRTCTransportError")
+	require.Equal(t, webrtcErr.kind, errKindConnectionFailed)
+	require.Contains(t, webrtcErr.message, "failed")
+
 }

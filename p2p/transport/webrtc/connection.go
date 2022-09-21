@@ -6,10 +6,10 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	ic "github.com/John-LittleBearLabs/go-libp2p/core/crypto"
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	tpt "github.com/John-LittleBearLabs/go-libp2p/core/transport"
+	ic "github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	tpt "github.com/libp2p/go-libp2p/core/transport"
 	ma "github.com/multiformats/go-multiaddr"
 	"github.com/pion/webrtc/v3"
 )
@@ -50,7 +50,7 @@ func newConnection(
 	remotePeer peer.ID,
 	remoteKey ic.PubKey,
 	remoteMultiaddr ma.Multiaddr,
-) (*connection, error) {
+) *connection {
 	accept := make(chan network.MuxedStream, 10)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -88,7 +88,8 @@ func newConnection(
 			conn.removeStream(id)
 		})
 	})
-	return conn, nil
+
+	return conn
 }
 
 // Implement network.MuxedConn
@@ -123,18 +124,15 @@ func (c *connection) OpenStream(ctx context.Context) (network.MuxedStream, error
 	}
 
 	label := uuid.New().String()
-	dc, err := c.pc.CreateDataChannel(label, &webrtc.DataChannelInit{
-		Ordered:        func(b bool) *bool { return &b }(true),
-		MaxRetransmits: func(x uint16) *uint16 { return &x }(100),
-	})
-	dc.SetBufferedAmountLowThreshold(0)
-	if err != nil {
-		return nil, err
-	}
 	result := make(chan struct {
 		network.MuxedStream
 		error
-	}, 1)
+	})
+	dc, err := c.pc.CreateDataChannel(label, nil)
+	if err != nil {
+		return nil, err
+	}
+
 	streamId := *dc.ID()
 	stream := newDataChannel(dc, c.pc, nil, nil)
 	dc.OnOpen(func() {
@@ -144,6 +142,7 @@ func (c *connection) OpenStream(ctx context.Context) (network.MuxedStream, error
 			error
 		}{stream, err}
 	})
+
 	dc.OnClose(func() {
 		stream.remoteClosed()
 		c.removeStream(streamId)

@@ -3,17 +3,15 @@ package libp2pwebrtc
 import (
 	"context"
 	"encoding/hex"
-	"errors"
-	"fmt"
 	"net"
 	"os"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/network"
 
-	tpt "github.com/John-LittleBearLabs/go-libp2p/core/transport"
+	tpt "github.com/libp2p/go-libp2p/core/transport"
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 	"github.com/multiformats/go-multibase"
@@ -21,12 +19,6 @@ import (
 
 	"github.com/pion/ice/v2"
 	"github.com/pion/webrtc/v3"
-)
-
-var (
-	ErrDataChannelTimeout    = errors.New("timed out waiting for datachannel")
-	ErrNoiseHandshakeTimeout = errors.New("noise handshake timeout")
-	ErrNoCertInConfig        = errors.New("no certificate configured in listener config")
 )
 
 var (
@@ -68,7 +60,7 @@ type listener struct {
 }
 
 func newListener(transport *WebRTCTransport, laddr ma.Multiaddr, socket net.PacketConn, config webrtc.Configuration) (*listener, error) {
-	mux := NewUDPMuxNewAddr(ice.UDPMuxParams{UDPConn: socket}, make(chan candidateAddr, 1))
+	mux := NewUDPMuxNewAddr(ice.UDPMuxParams{UDPConn: socket}, make(chan candidateAddr))
 	localFingerprints, err := config.Certificates[0].GetFingerprints()
 	if err != nil {
 		return nil, err
@@ -175,18 +167,69 @@ func (l *listener) accept(ctx context.Context, addr candidateAddr) (tpt.CapableC
 		return nil, err
 	}
 
-	// signaling channel
-	signalChan := make(chan struct{})
+	settingEngine := webrtc.SettingEngine{}
+	settingEngine.SetAnsweringDTLSRole(webrtc.DTLSRoleServer)
+	settingEngine.SetICECredentials(addr.ufrag, addr.ufrag)
+	settingEngine.SetLite(true)
+	settingEngine.SetICEUDPMux(l.mux)
+	settingEngine.DisableCertificateFingerprintVerification(true)
 
-	se := webrtc.SettingEngine{}
-	se.SetAnsweringDTLSRole(webrtc.DTLSRoleServer)
-	// se.DetachDataChannels()
-	se.DisableCertificateFingerprintVerification(true)
-	se.SetICECredentials(addr.ufrag, addr.ufrag)
-	se.SetLite(true)
-	se.SetICEUDPMux(l.mux)
+	api := webrtc.NewAPI(webrtc.WithSettingEngine(settingEngine))
 
-	api := webrtc.NewAPI(webrtc.WithSettingEngine(se))
+	pc, err = api.NewPeerConnection(l.config)
+	if err != nil {
+		defer cleanup()
+		return nil, err
+	}
+
+	// signaling channel wraps an error in a struct to make
+	// the error nullable.
+	signalChan := make(chan struct{ error })
+	// this enforces that the correct data channel label is used
+	// for the handshake
+	handshakeChannel, err := pc.CreateDataChannel("data", &webrtc.DataChannelInit{
+		Negotiated: func(v bool) *bool { return &v }(true),
+		ID:         func(v uint16) *uint16 { return &v }(1),
+	})
+	if err != nil {
+		defer cleanup()
+		return nil, err
+	}
+
+	// The raw datachannel is wrapped in the libp2p abstraction
+	// as early as possible to allow any messages sent by the remote
+	// to be buffered. This is done since the dialer leads the listener
+	// in the handshake process, and a faster dialer could have set up
+	// their connection and started sending Noise handshake messages before
+	// the listener has set up the onmessage callback. In this use case,
+	// since the data channels are negotiated out-of-band, they will be
+	// instantly in `readyState=open` once the SCTP connection is set up.
+	// Therefore, we wrap the datachannel before performing the
+	// offer-answer exchange, so any messages sent from the remote get
+	// buffered.
+	wrappedChannel := newDataChannel(
+		handshakeChannel,
+		pc,
+		l.mux.LocalAddr(),
+		addr.raddr,
+	)
+
+	var handshakeOnce sync.Once
+	handshakeChannel.OnOpen(func() {
+		handshakeOnce.Do(func() {
+			signalChan <- struct{ error }{nil}
+		})
+	})
+
+	// Checking the peerconnection state is not necessary in this case as any
+	// error caused while accepting will trigger the onerror callback of the
+	// handshake channel.
+	handshakeChannel.OnError(func(e error) {
+		handshakeOnce.Do(func() {
+			signalChan <- struct{ error }{e}
+
+		})
+	})
 
 	clientSdpString := renderClientSdp(sdpArgs{
 		Addr:        addr.raddr,
@@ -194,19 +237,6 @@ func (l *listener) accept(ctx context.Context, addr candidateAddr) (tpt.CapableC
 		Ufrag:       addr.ufrag,
 	})
 	clientSdp := webrtc.SessionDescription{SDP: clientSdpString, Type: webrtc.SDPTypeOffer}
-	pc, err = api.NewPeerConnection(l.config)
-	if err != nil {
-		defer cleanup()
-		return nil, err
-	}
-
-	var connectedOnce sync.Once
-	pc.OnConnectionStateChange(func(state webrtc.PeerConnectionState) {
-		if state == webrtc.PeerConnectionStateConnected {
-			connectedOnce.Do(func() { signalChan <- struct{}{} })
-		}
-	})
-
 	pc.SetRemoteDescription(clientSdp)
 
 	answer, err := pc.CreateAnswer(nil)
@@ -221,56 +251,23 @@ func (l *listener) accept(ctx context.Context, addr candidateAddr) (tpt.CapableC
 		return nil, err
 	}
 
-	// await peerconnection connected state
-	select {
-	case <-signalChan:
-	case <-ctx.Done():
-		defer cleanup()
-		return nil, ctx.Err()
-	}
-
-	// await openening of datachannel
-	dcChan := make(chan *dataChannel)
-	// this enforces that the correct data channel label is used
-	// for the handshake
-	handshakeChannel, err := pc.CreateDataChannel("data", &webrtc.DataChannelInit{
-		Negotiated: func(v bool) *bool { return &v }(true),
-		ID:         func(v uint16) *uint16 { return &v }(1),
-	})
-	if err != nil {
-		defer cleanup()
-		return nil, err
-	}
-
-	var handshakeOnce sync.Once
-	handshakeChannel.OnOpen(func() {
-		handshakeOnce.Do(func() {
-			// detached, err := handshakeChannel.Detach()
-			// if err != nil {
-			// 	return
-			// }
-			dcChan <- newDataChannel(
-				handshakeChannel,
-				pc,
-				l.mux.LocalAddr(),
-				addr.raddr,
-			)
-		})
-	})
-
-	var dc *dataChannel
+	// await datachannel moving to open state
 	select {
 	case <-ctx.Done():
 		defer cleanup()
 		return nil, ctx.Err()
-	case dc = <-dcChan:
-		if dc == nil {
+	case signal := <-signalChan:
+		if signal.error != nil {
 			defer cleanup()
-			return nil, fmt.Errorf("should be unreachable")
+			log.Debugf("datachannel: ", signal.error)
+			return nil, errDatachannel("datachannel error", signal.error)
 		}
 	}
 
-	conn, err := newConnection(
+	// The connection is instantiated before performing the Noise handshake. This is
+	// to handle the case where the remote is faster and attempts to initiate a stream
+	// before the ondatachannel callback can be set.
+	conn := newConnection(
 		pc,
 		l.transport,
 		scope,
@@ -282,13 +279,8 @@ func (l *listener) accept(ctx context.Context, addr candidateAddr) (tpt.CapableC
 		remoteMultiaddr,
 	)
 
-	if err != nil {
-		defer cleanup()
-		return nil, err
-	}
-
 	// we do not yet know A's peer ID so accept any inbound
-	secureConn, err := l.transport.noiseHandshake(ctx, pc, dc, "", true)
+	secureConn, err := l.transport.noiseHandshake(ctx, pc, wrappedChannel, "", true)
 	if err != nil {
 		defer cleanup()
 		return nil, err
