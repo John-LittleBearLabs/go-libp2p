@@ -9,8 +9,8 @@ import (
 
 	"github.com/flynn/noise"
 
-	"github.com/libp2p/go-libp2p/core/crypto"
-	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/John-LittleBearLabs/go-libp2p/core/crypto"
+	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
 )
 
 type secureSession struct {

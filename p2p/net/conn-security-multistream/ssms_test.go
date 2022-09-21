@@ -8,10 +8,10 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/libp2p/go-libp2p/core/crypto"
-	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/libp2p/go-libp2p/core/sec"
-	"github.com/libp2p/go-libp2p/core/sec/insecure"
+	"github.com/John-LittleBearLabs/go-libp2p/core/crypto"
+	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
+	"github.com/John-LittleBearLabs/go-libp2p/core/sec"
+	"github.com/John-LittleBearLabs/go-libp2p/core/sec/insecure"
 
 	"github.com/stretchr/testify/require"
 )

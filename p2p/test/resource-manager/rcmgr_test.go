@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/John-LittleBearLabs/go-libp2p"
-	"github.com/libp2p/go-libp2p/core/network"
-	"github.com/libp2p/go-libp2p/core/peer"
-	rcmgr "github.com/libp2p/go-libp2p/p2p/host/resource-manager"
+	"github.com/John-LittleBearLabs/go-libp2p/core/network"
+	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
+	rcmgr "github.com/John-LittleBearLabs/go-libp2p/p2p/host/resource-manager"
 
 	"github.com/stretchr/testify/require"
 )

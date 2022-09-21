@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/John-LittleBearLabs/go-libp2p/core/crypto"
 
 	"github.com/stretchr/testify/require"
 )

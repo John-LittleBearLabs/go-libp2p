@@ -14,12 +14,12 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	ic "github.com/libp2p/go-libp2p/core/crypto"
-	"github.com/libp2p/go-libp2p/core/network"
-	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/libp2p/go-libp2p/core/sec"
-	tpt "github.com/libp2p/go-libp2p/core/transport"
-	"github.com/libp2p/go-libp2p/p2p/security/noise"
+	ic "github.com/John-LittleBearLabs/go-libp2p/core/crypto"
+	"github.com/John-LittleBearLabs/go-libp2p/core/network"
+	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
+	"github.com/John-LittleBearLabs/go-libp2p/core/sec"
+	tpt "github.com/John-LittleBearLabs/go-libp2p/core/transport"
+	"github.com/John-LittleBearLabs/go-libp2p/p2p/security/noise"
 
 	logging "github.com/ipfs/go-log/v2"
 	ma "github.com/multiformats/go-multiaddr"

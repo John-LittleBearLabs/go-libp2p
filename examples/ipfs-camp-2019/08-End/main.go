@@ -13,12 +13,12 @@ import (
 	"github.com/libp2p/go-libp2p-core/routing"
 	kaddht "github.com/libp2p/go-libp2p-kad-dht"
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
-	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
-	"github.com/libp2p/go-libp2p/p2p/muxer/mplex"
-	"github.com/libp2p/go-libp2p/p2p/muxer/yamux"
-	tls "github.com/libp2p/go-libp2p/p2p/security/tls"
-	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
-	"github.com/libp2p/go-libp2p/p2p/transport/websocket"
+	"github.com/John-LittleBearLabs/go-libp2p/p2p/discovery/mdns"
+	"github.com/John-LittleBearLabs/go-libp2p/p2p/muxer/mplex"
+	"github.com/John-LittleBearLabs/go-libp2p/p2p/muxer/yamux"
+	tls "github.com/John-LittleBearLabs/go-libp2p/p2p/security/tls"
+	"github.com/John-LittleBearLabs/go-libp2p/p2p/transport/tcp"
+	"github.com/John-LittleBearLabs/go-libp2p/p2p/transport/websocket"
 
 	"github.com/multiformats/go-multiaddr"
 )

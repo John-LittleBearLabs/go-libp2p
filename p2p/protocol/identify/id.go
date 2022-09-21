@@ -7,16 +7,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/libp2p/go-libp2p/core/crypto"
-	"github.com/libp2p/go-libp2p/core/event"
-	"github.com/libp2p/go-libp2p/core/host"
-	"github.com/libp2p/go-libp2p/core/network"
-	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/libp2p/go-libp2p/core/peerstore"
-	"github.com/libp2p/go-libp2p/core/record"
+	"github.com/John-LittleBearLabs/go-libp2p/core/crypto"
+	"github.com/John-LittleBearLabs/go-libp2p/core/event"
+	"github.com/John-LittleBearLabs/go-libp2p/core/host"
+	"github.com/John-LittleBearLabs/go-libp2p/core/network"
+	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
+	"github.com/John-LittleBearLabs/go-libp2p/core/peerstore"
+	"github.com/John-LittleBearLabs/go-libp2p/core/record"
 
-	"github.com/libp2p/go-libp2p/p2p/host/eventbus"
-	pb "github.com/libp2p/go-libp2p/p2p/protocol/identify/pb"
+	"github.com/John-LittleBearLabs/go-libp2p/p2p/host/eventbus"
+	pb "github.com/John-LittleBearLabs/go-libp2p/p2p/protocol/identify/pb"
 
 	"github.com/libp2p/go-msgio/protoio"
 

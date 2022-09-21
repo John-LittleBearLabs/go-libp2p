@@ -11,8 +11,8 @@ import (
 	"net"
 	"testing"
 
-	ic "github.com/libp2p/go-libp2p/core/crypto"
-	tpt "github.com/libp2p/go-libp2p/core/transport"
+	ic "github.com/John-LittleBearLabs/go-libp2p/core/crypto"
+	tpt "github.com/John-LittleBearLabs/go-libp2p/core/transport"
 
 	"github.com/lucas-clemente/quic-go"
 	ma "github.com/multiformats/go-multiaddr"

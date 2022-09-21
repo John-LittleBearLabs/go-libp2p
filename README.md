@@ -64,7 +64,7 @@ go-libp2p is part of [The IPFS Project](https://github.com/ipfs/ipfs), and is MI
 Guidelines:
 
 - read the [libp2p spec](https://github.com/libp2p/specs)
-- ask questions or talk about things in  our [discussion forums](https://discuss.libp2p.io), or open an [issue](https://github.com/libp2p/go-libp2p/issues) for bug reports, or #libp2p on freenode.
+- ask questions or talk about things in  our [discussion forums](https://discuss.libp2p.io), or open an [issue](https://github.com/John-LittleBearLabs/go-libp2p/issues) for bug reports, or #libp2p on freenode.
 - ensure you are able to contribute (no legal issues please -- we use the DCO)
 - get in touch with @marten-seemann about how best to contribute
 - have fun!

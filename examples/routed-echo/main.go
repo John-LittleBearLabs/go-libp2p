@@ -21,7 +21,7 @@ import (
 	golog "github.com/ipfs/go-log/v2"
 
 	dht "github.com/libp2p/go-libp2p-kad-dht"
-	rhost "github.com/libp2p/go-libp2p/p2p/host/routed"
+	rhost "github.com/John-LittleBearLabs/go-libp2p/p2p/host/routed"
 	ma "github.com/multiformats/go-multiaddr"
 )
 

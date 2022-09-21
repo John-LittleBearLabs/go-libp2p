@@ -476,7 +476,7 @@ and limits interact with each other?". The short answer is that they don't know
 about each other. This can lead to some surprising subtleties, such as the
 trimming never happening because the resource manager's limit is lower than the
 high watermark. This is confusing, and we'd like to fix it. The issue is
-captured in [go-libp2p#1640](https://github.com/libp2p/go-libp2p/issues/1640).
+captured in [go-libp2p#1640](https://github.com/John-LittleBearLabs/go-libp2p/issues/1640).
 
 When configuring the resource manager and connection manager, you should set the
 limits in the resource manager as your hard limits that you would never want to

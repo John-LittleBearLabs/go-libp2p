@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/John-LittleBearLabs/go-libp2p"
-	"github.com/libp2p/go-libp2p/core/event"
-	"github.com/libp2p/go-libp2p/core/network"
-	"github.com/libp2p/go-libp2p/p2p/host/autonat"
+	"github.com/John-LittleBearLabs/go-libp2p/core/event"
+	"github.com/John-LittleBearLabs/go-libp2p/core/network"
+	"github.com/John-LittleBearLabs/go-libp2p/p2p/host/autonat"
 
 	"github.com/stretchr/testify/require"
 )

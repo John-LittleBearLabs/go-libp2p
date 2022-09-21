@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/libp2p/go-libp2p/core/host"
-	"github.com/libp2p/go-libp2p/core/transport"
+	"github.com/John-LittleBearLabs/go-libp2p/core/host"
+	"github.com/John-LittleBearLabs/go-libp2p/core/transport"
 	ma "github.com/multiformats/go-multiaddr"
 )
 

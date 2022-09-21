@@ -4,10 +4,10 @@ import (
 	"context"
 	"net"
 
-	ic "github.com/libp2p/go-libp2p/core/crypto"
-	"github.com/libp2p/go-libp2p/core/network"
-	"github.com/libp2p/go-libp2p/core/peer"
-	tpt "github.com/libp2p/go-libp2p/core/transport"
+	ic "github.com/John-LittleBearLabs/go-libp2p/core/crypto"
+	"github.com/John-LittleBearLabs/go-libp2p/core/network"
+	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
+	tpt "github.com/John-LittleBearLabs/go-libp2p/core/transport"
 
 	"github.com/lucas-clemente/quic-go"
 	ma "github.com/multiformats/go-multiaddr"
