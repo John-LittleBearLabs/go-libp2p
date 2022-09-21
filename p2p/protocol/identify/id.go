@@ -46,7 +46,7 @@ var (
 	legacyIDSize     = 2 * 1024 // 2k Bytes
 	signedIDSize     = 8 * 1024 // 8K
 	maxMessages      = 10
-	defaultUserAgent = "github.com/libp2p/go-libp2p"
+	defaultUserAgent = "github.com/John-LittleBearLabs/go-libp2p"
 )
 
 type addPeerHandlerReq struct {

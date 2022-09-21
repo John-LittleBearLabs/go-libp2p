@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	// We need to import libp2p's libraries that we use in this project.
-	"github.com/libp2p/go-libp2p"
+	"github.com/John-LittleBearLabs/go-libp2p"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/network"
 	"github.com/libp2p/go-libp2p-core/peer"

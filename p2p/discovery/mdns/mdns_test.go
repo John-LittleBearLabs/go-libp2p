@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/libp2p/go-libp2p"
+	"github.com/John-LittleBearLabs/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/peer"
 
 	"github.com/stretchr/testify/assert"

@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/libp2p/go-libp2p"
+	"github.com/John-LittleBearLabs/go-libp2p"
 	ic "github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/event"
 	"github.com/libp2p/go-libp2p/core/host"
@@ -79,7 +79,7 @@ func testHasProtocolVersions(t *testing.T, h host.Host, p peer.ID) {
 		t.Error("protocol mismatch", err)
 	}
 	v, err = h.Peerstore().Get(p, "AgentVersion")
-	if v.(string) != "github.com/libp2p/go-libp2p" { // this is the default user agent
+	if v.(string) != "github.com/John-LittleBearLabs/go-libp2p" { // this is the default user agent
 		t.Error("agent version mismatch", err)
 	}
 }

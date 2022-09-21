@@ -19,7 +19,7 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/muxer/yamux"
 	csms "github.com/libp2p/go-libp2p/p2p/net/conn-security-multistream"
 	tptu "github.com/libp2p/go-libp2p/p2p/net/upgrader"
-	quic "github.com/libp2p/go-libp2p/p2p/transport/quic"
+	quic "github.com/libp2p/John-LittleBearLabs/p2p/transport/quic"
 	"github.com/libp2p/go-libp2p/p2p/transport/tcp"
 
 	ma "github.com/multiformats/go-multiaddr"
