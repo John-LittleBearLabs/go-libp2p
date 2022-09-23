@@ -16,9 +16,9 @@ import (
 	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
 	"github.com/John-LittleBearLabs/go-libp2p/core/protocol"
 
-	"github.com/libp2p/go-libp2p-testing/ci"
-	tetc "github.com/libp2p/go-libp2p-testing/etc"
-	"github.com/libp2p/go-libp2p-testing/race"
+	"github.com/John-LittleBearLabs/go-libp2p-testing/ci"
+	tetc "github.com/John-LittleBearLabs/go-libp2p-testing/etc"
+	"github.com/John-LittleBearLabs/go-libp2p-testing/race"
 	ma "github.com/multiformats/go-multiaddr"
 	"github.com/stretchr/testify/require"
 )

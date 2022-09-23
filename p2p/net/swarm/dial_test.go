@@ -14,7 +14,7 @@ import (
 	. "github.com/John-LittleBearLabs/go-libp2p/p2p/net/swarm"
 	swarmt "github.com/John-LittleBearLabs/go-libp2p/p2p/net/swarm/testing"
 
-	"github.com/libp2p/go-libp2p-testing/ci"
+	"github.com/John-LittleBearLabs/go-libp2p-testing/ci"
 
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"

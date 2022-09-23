@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/libp2p/go-libp2p/core/crypto"
-	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/libp2p/go-libp2p/core/record"
+	"github.com/John-LittleBearLabs/go-libp2p/core/crypto"
+	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
+	"github.com/John-LittleBearLabs/go-libp2p/core/record"
 )
 
 func TestReservationVoucher(t *testing.T) {

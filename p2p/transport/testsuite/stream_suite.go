@@ -15,7 +15,7 @@ import (
 	crand "crypto/rand"
 	mrand "math/rand"
 
-	"github.com/libp2p/go-libp2p-testing/race"
+	"github.com/John-LittleBearLabs/go-libp2p-testing/race"
 	"github.com/John-LittleBearLabs/go-libp2p/core/network"
 	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
 	"github.com/John-LittleBearLabs/go-libp2p/core/transport"
