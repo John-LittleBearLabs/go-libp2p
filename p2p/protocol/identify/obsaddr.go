@@ -7,11 +7,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/event"
-	"github.com/John-LittleBearLabs/go-libp2p/core/host"
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peerstore"
-	"github.com/John-LittleBearLabs/go-libp2p/p2p/host/eventbus"
+	"github.com/libp2p/go-libp2p/core/event"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peerstore"
+	"github.com/libp2p/go-libp2p/p2p/host/eventbus"
 
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"

@@ -8,13 +8,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	pb "github.com/John-LittleBearLabs/go-libp2p/p2p/protocol/internal/circuitv1-deprecated/pb"
+	pb "github.com/libp2p/go-libp2p/p2p/protocol/internal/circuitv1-deprecated/pb"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/host"
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peerstore"
-	"github.com/John-LittleBearLabs/go-libp2p/core/transport"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/peerstore"
+	"github.com/libp2p/go-libp2p/core/transport"
 
 	pool "github.com/libp2p/go-buffer-pool"
 

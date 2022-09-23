@@ -3,9 +3,9 @@ package proto
 import (
 	"time"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	"github.com/John-LittleBearLabs/go-libp2p/core/record"
-	pbv2 "github.com/John-LittleBearLabs/go-libp2p/p2p/protocol/circuitv2/pb"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/record"
+	pbv2 "github.com/libp2p/go-libp2p/p2p/protocol/circuitv2/pb"
 )
 
 const RecordDomain = "libp2p-relay-rsvp"

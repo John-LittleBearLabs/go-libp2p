@@ -3,7 +3,6 @@ module github.com/John-LittleBearLabs/go-libp2p/examples
 go 1.18
 
 require (
-	github.com/gogo/protobuf v1.3.2
 	github.com/google/uuid v1.3.0
 	github.com/ipfs/go-datastore v0.5.1
 	github.com/ipfs/go-log/v2 v2.5.1
