@@ -11,16 +11,16 @@ import (
 	mrand "math/rand"
 
 	"github.com/John-LittleBearLabs/go-libp2p"
-	"github.com/John-LittleBearLabs/go-libp2p-core/crypto"
-	"github.com/John-LittleBearLabs/go-libp2p-core/host"
-	"github.com/John-LittleBearLabs/go-libp2p-core/network"
-	"github.com/John-LittleBearLabs/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/peer"
 
 	ds "github.com/ipfs/go-datastore"
 	dsync "github.com/ipfs/go-datastore/sync"
 	golog "github.com/ipfs/go-log/v2"
 
-	dht "github.com/John-LittleBearLabs/go-libp2p-kad-dht"
+	dht "github.com/libp2p/go-libp2p-kad-dht"
 	rhost "github.com/John-LittleBearLabs/go-libp2p/p2p/host/routed"
 	ma "github.com/multiformats/go-multiaddr"
 )

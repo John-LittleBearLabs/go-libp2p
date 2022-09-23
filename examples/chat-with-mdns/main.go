@@ -9,9 +9,9 @@ import (
 	"os"
 
 	"github.com/John-LittleBearLabs/go-libp2p"
-	"github.com/John-LittleBearLabs/go-libp2p-core/crypto"
-	"github.com/John-LittleBearLabs/go-libp2p-core/network"
-	"github.com/John-LittleBearLabs/go-libp2p-core/protocol"
+	"github.com/libp2p/go-libp2p-core/crypto"
+	"github.com/libp2p/go-libp2p-core/network"
+	"github.com/libp2p/go-libp2p-core/protocol"
 
 	"github.com/multiformats/go-multiaddr"
 )

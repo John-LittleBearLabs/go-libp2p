@@ -15,11 +15,11 @@ import (
 	"github.com/John-LittleBearLabs/go-libp2p/p2p/transport/tcp"
 	"github.com/John-LittleBearLabs/go-libp2p/p2p/transport/websocket"
 
-	"github.com/John-LittleBearLabs/go-libp2p-core/host"
-	"github.com/John-LittleBearLabs/go-libp2p-core/peer"
-	"github.com/John-LittleBearLabs/go-libp2p-core/routing"
-	kaddht "github.com/John-LittleBearLabs/go-libp2p-kad-dht"
-	pubsub "github.com/John-LittleBearLabs/go-libp2p-pubsub"
+	"github.com/libp2p/go-libp2p-core/host"
+	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/libp2p/go-libp2p-core/routing"
+	kaddht "github.com/libp2p/go-libp2p-kad-dht"
+	pubsub "github.com/libp2p/go-libp2p-pubsub"
 
 	"github.com/multiformats/go-multiaddr"
 )
