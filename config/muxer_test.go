@@ -3,12 +3,12 @@ package config
 import (
 	"testing"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/host"
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	bhost "github.com/John-LittleBearLabs/go-libp2p/p2p/host/basic"
-	"github.com/John-LittleBearLabs/go-libp2p/p2p/muxer/yamux"
-	swarmt "github.com/John-LittleBearLabs/go-libp2p/p2p/net/swarm/testing"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	bhost "github.com/libp2p/go-libp2p/p2p/host/basic"
+	"github.com/libp2p/go-libp2p/p2p/muxer/yamux"
+	swarmt "github.com/libp2p/go-libp2p/p2p/net/swarm/testing"
 )
 
 func TestMuxerSimple(t *testing.T) {

@@ -12,13 +12,13 @@ import (
 
 	"golang.org/x/crypto/hkdf"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/connmgr"
-	ic "github.com/John-LittleBearLabs/go-libp2p/core/crypto"
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	"github.com/John-LittleBearLabs/go-libp2p/core/pnet"
-	tpt "github.com/John-LittleBearLabs/go-libp2p/core/transport"
-	p2ptls "github.com/John-LittleBearLabs/go-libp2p/p2p/security/tls"
+	"github.com/libp2p/go-libp2p/core/connmgr"
+	ic "github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/pnet"
+	tpt "github.com/libp2p/go-libp2p/core/transport"
+	p2ptls "github.com/libp2p/go-libp2p/p2p/security/tls"
 
 	ma "github.com/multiformats/go-multiaddr"
 	mafmt "github.com/multiformats/go-multiaddr-fmt"

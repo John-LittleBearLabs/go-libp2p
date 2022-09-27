@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/network"
 
-	tpt "github.com/John-LittleBearLabs/go-libp2p/core/transport"
+	tpt "github.com/libp2p/go-libp2p/core/transport"
 	ma "github.com/multiformats/go-multiaddr"
 	manet "github.com/multiformats/go-multiaddr/net"
 	"github.com/multiformats/go-multibase"

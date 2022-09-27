@@ -10,7 +10,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/google/uuid"
-	pb "github.com/John-LittleBearLabs/go-libp2p/examples/multipro/pb"
+	pb "github.com/libp2p/go-libp2p/examples/multipro/pb"
 )
 
 // pattern: /protocol-name/request-or-response-message/version

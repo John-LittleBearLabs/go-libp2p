@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/test"
+	"github.com/libp2p/go-libp2p/core/test"
 
 	ma "github.com/multiformats/go-multiaddr"
 )

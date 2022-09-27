@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	rcmgr "github.com/John-LittleBearLabs/go-libp2p/p2p/host/resource-manager"
+	rcmgr "github.com/libp2p/go-libp2p/p2p/host/resource-manager"
 
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"

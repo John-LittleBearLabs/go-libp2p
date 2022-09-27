@@ -14,10 +14,10 @@ import (
 
 	"sync/atomic"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/pion/webrtc/v3"
 
-	pb "github.com/John-LittleBearLabs/go-libp2p/p2p/transport/webrtc/pb"
+	pb "github.com/libp2p/go-libp2p/p2p/transport/webrtc/pb"
 )
 
 var _ network.MuxedStream = &dataChannel{}

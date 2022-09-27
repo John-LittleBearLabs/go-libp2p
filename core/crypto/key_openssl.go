@@ -10,7 +10,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/internal/catch"
+	"github.com/libp2p/go-libp2p/core/internal/catch"
 
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 	"github.com/libp2p/go-openssl"

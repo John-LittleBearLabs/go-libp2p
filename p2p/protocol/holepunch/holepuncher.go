@@ -7,11 +7,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/host"
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	pb "github.com/John-LittleBearLabs/go-libp2p/p2p/protocol/holepunch/pb"
-	"github.com/John-LittleBearLabs/go-libp2p/p2p/protocol/identify"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	pb "github.com/libp2p/go-libp2p/p2p/protocol/holepunch/pb"
+	"github.com/libp2p/go-libp2p/p2p/protocol/identify"
 
 	"github.com/libp2p/go-msgio/protoio"
 

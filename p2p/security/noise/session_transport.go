@@ -4,9 +4,9 @@ import (
 	"context"
 	"net"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/canonicallog"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	"github.com/John-LittleBearLabs/go-libp2p/core/sec"
+	"github.com/libp2p/go-libp2p/core/canonicallog"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/sec"
 	manet "github.com/multiformats/go-multiaddr/net"
 )
 

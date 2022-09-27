@@ -11,12 +11,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	mocknetwork "github.com/John-LittleBearLabs/go-libp2p/core/network/mocks"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	"github.com/John-LittleBearLabs/go-libp2p/core/sec"
-	"github.com/John-LittleBearLabs/go-libp2p/core/transport"
-	"github.com/John-LittleBearLabs/go-libp2p/p2p/net/upgrader"
+	"github.com/libp2p/go-libp2p/core/network"
+	mocknetwork "github.com/libp2p/go-libp2p/core/network/mocks"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/sec"
+	"github.com/libp2p/go-libp2p/core/transport"
+	"github.com/libp2p/go-libp2p/p2p/net/upgrader"
 
 	"github.com/golang/mock/gomock"
 	ma "github.com/multiformats/go-multiaddr"

@@ -6,12 +6,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/John-LittleBearLabs/go-libp2p/p2p/discovery/mocks"
-	bhost "github.com/John-LittleBearLabs/go-libp2p/p2p/host/blank"
-	swarmt "github.com/John-LittleBearLabs/go-libp2p/p2p/net/swarm/testing"
+	"github.com/libp2p/go-libp2p/p2p/discovery/mocks"
+	bhost "github.com/libp2p/go-libp2p/p2p/host/blank"
+	swarmt "github.com/libp2p/go-libp2p/p2p/net/swarm/testing"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/discovery"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/discovery"
+	"github.com/libp2p/go-libp2p/core/peer"
 
 	mockClock "github.com/benbjohnson/clock"
 )

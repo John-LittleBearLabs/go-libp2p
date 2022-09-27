@@ -20,9 +20,9 @@ import (
 	"testing"
 	"time"
 
-	ic "github.com/John-LittleBearLabs/go-libp2p/core/crypto"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	"github.com/John-LittleBearLabs/go-libp2p/core/sec"
+	ic "github.com/libp2p/go-libp2p/core/crypto"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/sec"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -64,7 +64,7 @@ func connect(t *testing.T) (net.Conn, net.Conn) {
 	sconn := <-serverConnChan
 	// On Windows we have to set linger to 0, otherwise we'll occasionally run into errors like the following:
 	// "connectex: Only one usage of each socket address (protocol/network address/port) is normally permitted."
-	// See https://github.com/John-LittleBearLabs/go-libp2p/issues/1529.
+	// See https://github.com/libp2p/go-libp2p/issues/1529.
 	conn.SetLinger(0)
 	sconn.SetLinger(0)
 	t.Cleanup(func() {

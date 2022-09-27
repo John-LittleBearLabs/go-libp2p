@@ -7,12 +7,12 @@ import (
 	"io"
 	"testing"
 
-	"github.com/John-LittleBearLabs/go-libp2p/core/host"
-	"github.com/John-LittleBearLabs/go-libp2p/core/network"
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	"github.com/John-LittleBearLabs/go-libp2p/core/transport"
-	relayv1 "github.com/John-LittleBearLabs/go-libp2p/p2p/protocol/circuitv1/relay"
-	compatv1 "github.com/John-LittleBearLabs/go-libp2p/p2p/protocol/internal/circuitv1-deprecated"
+	"github.com/libp2p/go-libp2p/core/host"
+	"github.com/libp2p/go-libp2p/core/network"
+	"github.com/libp2p/go-libp2p/core/peer"
+	"github.com/libp2p/go-libp2p/core/transport"
+	relayv1 "github.com/libp2p/go-libp2p/p2p/protocol/circuitv1/relay"
+	compatv1 "github.com/libp2p/go-libp2p/p2p/protocol/internal/circuitv1-deprecated"
 
 	ma "github.com/multiformats/go-multiaddr"
 )

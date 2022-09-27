@@ -1,8 +1,8 @@
 package autonat
 
 import (
-	"github.com/John-LittleBearLabs/go-libp2p/core/peer"
-	pb "github.com/John-LittleBearLabs/go-libp2p/p2p/host/autonat/pb"
+	"github.com/libp2p/go-libp2p/core/peer"
+	pb "github.com/libp2p/go-libp2p/p2p/host/autonat/pb"
 
 	ma "github.com/multiformats/go-multiaddr"
 )
